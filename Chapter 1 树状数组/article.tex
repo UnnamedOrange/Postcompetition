@@ -1,0 +1,304 @@
+%MIT License
+
+%Copyright (c) 2018 Orange Lee
+
+%Permission is hereby granted, free of charge, to any person obtaining a copy
+%of this software and associated documentation files (the "Software"), to deal
+%in the Software without restriction, including without limitation the rights
+%to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+%copies of the Software, and to permit persons to whom the Software is
+%furnished to do so, subject to the following conditions:
+
+%The above copyright notice and this permission notice shall be included in all
+%copies or substantial portions of the Software.
+
+%THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+%IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+%FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+%AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+%LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+%OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+%SOFTWARE.
+
+\documentclass[UTF8]{article}
+\usepackage{ctex}
+\usepackage{hyperref}	% 用于交叉引用
+\usepackage{setspace}	% 用于设置行间距
+\usepackage{listings}	% 用于代码高亮
+\usepackage{xcolor}		% 用于处理颜色
+\usepackage{ulem}		% 用于各种线
+\usepackage{amsmath}	% 用于数学公式（如 \begin{align}）
+\usepackage{amsthm}		% 用于数学版式（如 \newtheorem{cmd}{caption}）
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{booktabs}	% 用于表格画线
+\usepackage{graphicx}	% 用于插入图片
+\usepackage[top = 0.8in, bottom = 0.8in, left = 0.8in, right = 0.8in]{geometry} %设置页边距
+
+% 设置页脚页脚
+\usepackage{fancyhdr}
+\usepackage{lastpage}	% 用于获取总页数
+\pagestyle{fancy}
+\fancyhf{}
+\cfoot{第 \thepage 页，共 \pageref{LastPage} 页}
+\chead{\insertsubject}
+%\renewcommand \headrulewidth {0pt} % 删除页眉横线
+
+% 设置代码
+\newfontfamily \Consolas {Consolas}
+\definecolor {CPPColor} {HTML} {2B91AF}
+\lstset{
+	columns = fixed,
+	numbers = left,                                        % 在左侧显示行号
+	frame = none,                                          % 不显示背景边框
+	backgroundcolor = \color[RGB]{245,245,245},            % 设定背景颜色
+	keywordstyle = \color[RGB]{40,40,255},                 % 设定关键字颜色
+	numberstyle = \footnotesize\color{darkgray},           % 设定行号格式
+	basicstyle = \Consolas,                                % 设定代码字体
+	commentstyle = \yahei\color[RGB]{0,96,96},             % 设置代码注释的格式
+	stringstyle = \yahei\slshape\color[RGB]{128,0,0},      % 设置字符串格式
+	showstringspaces = false,                              % 不显示字符串中的空格
+	language = c++,                                        % 设置语言
+	morekeywords={alignas,continute,friend,register,true,alignof,decltype,goto,
+	reinterpret_cast,try,asm,defult,if,return,typedef,auto,delete,inline,short,
+	typeid,bool,do,int,signed,typename,break,double,long,sizeof,union,case,
+	dynamic_cast,mutable,static,unsigned,catch,else,namespace,static_assert,using,
+	char,enum,new,static_cast,virtual,char16_t,char32_t,explict,noexcept,struct,
+	void,export,nullptr,switch,volatile,class,extern,operator,template,wchar_t,
+	const,false,private,this,while,constexpr,float,protected,thread_local,
+	const_cast,for,public,throw,std},
+	emph={map,set,multimap,multiset,unordered_map,unordered_set,
+	unordered_multiset,unordered_multimap,vector,string,list,deque,
+	array,stack,forwared_list,iostream,memory,shared_ptr,unique_ptr,
+	random,bitset,ostream,istream,cout,cin,endl,move,default_random_engine,
+	uniform_int_distribution,iterator,algorithm,functional,bing,numeric,
+	T}, % 自定义
+	emphstyle=\color{CPPColor},
+}
+\newcounter {icode}
+\newcommand \inserticode {\arabic{icode}}
+\newcommand \illuscode[1]
+{
+	\stepcounter{icode}
+	\begin{center}
+		\textbf{代码 \inserticode：} #1
+	\end{center}
+}
+\usepackage{color}
+\newcommand \code[1] {\colorbox[RGB]{245,245,245}{\Consolas #1}}
+
+\newcommand \insertsubject {{Chapter 1 树状数组}}
+
+\hypersetup
+{
+	pdfauthor = Orange Lee,
+	pdftitle = \insertsubject,
+	pdfsubject = \insertsubject,
+	pdfkeywords = \insertsubject,
+	colorlinks = true,
+	linkcolor = black,
+	anchorcolor = black,
+	citecolor = black,
+	urlcolor = black
+}
+
+\title{\insertsubject}
+\author{}
+\date{}
+
+\begin{document}
+
+	\maketitle
+	\tableofcontents
+	\thispagestyle{empty}
+
+	\clearpage
+	\setcounter{page}{1}
+
+	\section{什么是树状数组}
+
+	树状数组，又叫二叉索引树（Binary Indexed Tree，BIT），由 Peter Fenwick 于 1994 年发明（故又称 Fenwick 树），旨在维护序列的前缀和。\footnote{Wikipedia}
+	它的代码极为简单，广为人知：
+	\begin{lstlisting}
+template <typename T, int size = 0xffff>
+class BIT
+{
+	static inline int lowbit(const int& x)
+	{
+		return x & (-x);
+	}
+	T b[size + 1];
+
+public:
+	void add(int pos, const T& val)
+	{
+		while (pos <= size)
+		{
+			b[pos] += val;
+			pos += lowbit(pos);
+		}
+	}
+	T prefix(int pos)
+	{
+		T ret{};
+		while (pos)
+		{
+			ret += b[pos];
+			pos ^= lowbit(pos);
+		}
+		return ret;
+	}
+};
+	\end{lstlisting}
+	\illuscode{常规的 BIT}
+
+	为了方便，我们称代码 1 中的 $b$ 数组为 \textit{BIT 数组}或 \textit{$b$ 数组}。
+
+	代码 1 中的类型 \code{T} 需要且仅需要 \code{+=} 运算符，因此整数和浮点数都能作为 BIT 维护的类型。若类型 \code{T} 为 \code{set}\footnote{这里的 \code{set} 指抽象的集合。}，且把 \code{set += set} 看作两个 \code{set} 的合并，那么 \code{set} 也能作为一个合法的 \code{T} 类型。
+
+	在代码仓库中另附有更简洁常用的代码。需要注意的是，$b$ 数组的下标只能从 \code{1} 开始，因为 \code{add(0)} 的调用将会陷入死循环。但 \code{prefix(0)} 的调用却不会陷入死循环，因此我们在 \code{prefix} 函数中不用进行特判。
+
+	\section{常规的 BIT}
+
+	\newcommand \lowbit {\mathrm{lowbit}}
+
+	\subsection{$\lowbit$ 运算}
+
+	顾名思义，$\lowbit(x)$ 表示在二进制下，仅保留 $x$ 的最低非零位后得到的数。例如，$\lowbit((01101010)_2) = (00000010)_2$。
+
+	计算 $\lowbit(x)$ 的思路主要有两种。一是逐位检查；二是将原数减去一，相当于将 $\lowbit(x)$ 的对应位以及更低位全部取反。然后与原数进行按位与运算，用原数减去按位与的结果便是 $\lowbit(x)$。
+
+	另外，可以验证，若我们用补码表示二进制数，那么有 \code{lowbit(x) = x \& -x}。这种方法实质上就是前面的第二种思路，只不过形式上更加简洁。
+
+	\subsection{BIT 的原始定义}
+
+	设原数组为 $a_i \pod {1 \le i \le n}$，其前缀和数组为 $s$。规定 $b_i \pod {1 \le i \le n}$ 满足：
+	$$
+	b_x = \sum_{i = \left(x \oplus \lowbit(x)\right) + 1}^{x} a_i
+	$$
+
+	\bigskip
+
+	以上公式比较抽象。换个形式来看，$b_x$ 求的是 $a$ 从 $\left( (A 0 \overbrace{\cdots}^{\text{全是 }0} 01)_2 \right)$ 到 $\left( x = (A 1 \overbrace{\cdots}^{\text{全是 }0} 00)_2 \right)$ 的和，其中 $A$ 代表任意 $01$ 串。另外，也可用 $s$ 表示 $b$：
+	$$
+	b_x = s_x - s_{x \oplus \lowbit(x)}
+	$$
+
+	例如，对 $x = (1010)_2$，有：
+	$$
+	b_{(1100)_2} = a_{(1001)_2} + a_{(1010)_2} +
+	a_{(1011)_2} + a_{(1100)_2}
+	$$
+
+	\subsection{正确性的证明}
+
+	\newcommand \prefix {\mathrm{prefix}}
+	\paragraph{证明 \code{prefix} 函数的正确性}
+
+	分析：
+	观察 \code{prefix} 函数，它等价于：
+	$$
+	\prefix(x) =
+	\begin{cases}
+		b_x & x = \lowbit(x)
+		\\
+		s_{x \oplus \lowbit(x)} + b_x & \text{OTHERWISE}
+	\end{cases}
+	$$
+
+	我们要证：$s_x = \prefix(x)$。
+
+	\begin{proof}
+
+		分两种情况讨论。
+
+		（1）当 $x = \lowbit(x)$ 时，$s_x = b_x$，即 $s_x = \prefix(x)$。
+
+		（2）当 $x \ne \lowbit(x)$ 时，设 $y = x \oplus \lowbit(x)$。有：
+		\begin{align*}
+			s_x &= s_y + (s_x - s_y)
+			\\&=
+			s_y + b_x
+		\end{align*}
+
+	\end{proof}
+
+	\paragraph{证明 \code{add} 函数的正确性}
+
+	分析：
+	我们首先考虑令 $a_x$ 加上了 $v$ 后，哪些 $b_x$ 也需要加上 $v$。
+
+	以 $x = (00101010)_2$ 为例，模拟代码运行，发现需要考虑的 $b$ 有：
+	\begin{align*}
+		b_{(00101010)_2}
+		\\
+		b_{(00101100)_2}
+		\\
+		b_{(00110000)_2}
+		\\
+		b_{(01000000)_2}
+		\\
+		b_{(10000000)_2}
+	\end{align*}
+
+	可以发现，以上对应下标是这样得来的：考虑 $x$ 中所有比 $\lowbit$ 位高的零位。对于每一个这样的零位，将低于它的位全部置零，将它本身置 $1$，保持高于它的位不变，就得到了一个下标。特别地，$x$ 本身也是一个下标。我们要证明的是，对于所有这些下标，都应加上 $v$；对于不属于此列的下标，都不应加上 $v$。
+
+	\begin{proof}
+
+		设下标为 $y$。
+
+		（1）当 $y = x$ 时，根据 $b_y$ 的定义，一定需要加上 $v$。
+
+		（2）当 $y \ne x$ 时，若 $b_y$ 需要加上 $v$，则要满足：
+		\begin{equation*}
+			y \oplus \lowbit(y) < x \le y \tag{1}
+		\end{equation*}
+
+		当 $y \ne x$ 时，设 $y$ 和 $x$ 的形式分别为：
+		\begin{align*}
+			y = \overline{A10 \overbrace{\cdots}^{\text{全是 0}}}
+			\\
+			x = \overline{B?? \overbrace{\cdots}^{\text{全是 ?}}}
+		\end{align*}
+
+		\leftline{充分性：}
+
+		在用 \code{add} 的方法构造 $y$ 时，$y$ 从高到低第一个与 $x$ 不同的位一定为 $1$，故满足：$x < y$。
+
+		而将 $y$ 第一个与 $x$ 不同的位置为 $0$ 后，由于在该位之后 $x$ 的位一定不都为 $0$（至少还有 $\lowbit(x)$），故满足：$y \oplus \lowbit(y) < x$。
+
+		\bigskip
+
+		\leftline{必要性：}
+
+		只看 $A$ 和 $B$，必须满足 $A = B$。若 $A < B$，那么不满足 $x < y$；若 $A > B$，那么不满足 $y \oplus \lowbit(y) < x$。当 $A = B$ 时，我们可以知道 $B$ 后第一位一定是 $0$，且后面一定有非 $0$ 位，才能满足 $y + \lowbit(y) < x$。而这种情况正好对应（2）中讨论的情况。故不存在其它下标满足 $(1)$ 式。
+
+	\end{proof}
+
+	\subsection{时间复杂度}
+
+	我们一般认为 BIT 查询与修改的时间复杂度均为 $O(\log n)$。还能得到更为准确的循环次数。对于查询操作，由于每次循环会使非零位的个数减一，故循环次数为 $\mathrm{popcount}(x)$；\footnote{$\mathrm{popcount}$ 表示二进制数中非零位的个数。}对于修改操作，操作次数为 $\left\lceil \log_2 n \right\rceil - \mathrm{popcount}(x) + 1$。
+
+	\subsection{更好地理解 BIT}
+
+	以上概念和证明略显抽象，下面是一个很自然的理解方式。\footnote{\url{https://blog.csdn.net/flushhip/article/details/79165701}}
+
+	\section{BIT 的应用}
+
+	\subsection{维护前缀信息}
+
+	\subsubsection{维护前缀和}
+
+	BIT 最基本的用途就是维护一个序列的前缀和，它能在 $O(\log n)$ 的时间复杂度内计算出 $s_k = \sum_{i = 1}^{k} a_i \pod {k \le n, k \in \mathbb{N}}$。由于区间和可以用前缀和相减的形式表示：
+	$$
+	\sum_{i = l}^{r} a_i = s_r - s_{l - 1}
+	$$
+	因此 BIT 可以在 $O(\log n)$ 的时间复杂度内单点修改，在 $O(2 \log n)$ 的时间复杂度内查询区间和。
+
+	\paragraph{初始化维护前缀和的 BIT 的方法}
+
+	假设有一个 BIT，对应的数组为 $b_{1 \sim n}$，一开始 $b_i = 0$。现在给定一个下标范围为 $1 \sim n$ 的 $a$ 数组，希望用这个 BIT 维护 $a$。如何初始化 $b$ 数组？
+
+	一个显然的方法是调用 $n$ 次 \code{add} 函数，时间复杂度为 $O(n \log n)$。
+
+\end{document}
